@@ -102,6 +102,16 @@ describe "Session", ->
       expect(post.comments[0].session).to.eq(@child)
       expect(post.comments[0].post).to.eq(post)
       
+    it.only 'merges hasMany correctly', ->
+      post = @child.fetch('post', 1)
+      @child.merge new @Post(id: "1", title: 'parent', comments: [new @Comment(id: '2', post: new @Post(id: "1"))])
+      parentPost = @parent.getModel(post)
+      expect(post).to.not.eq(parentPost)
+      expect(post.comments.length).to.eq(1)
+      expect(post.comments[0]).to.not.eq(parentPost.comments[0])
+      expect(post.comments[0].session).to.eq(@child)
+      expect(post.comments[0].post).to.eq(post)
+      
     it 'adds belongsTo correctly', ->
       parentPost = @parent.merge new @Post(id: "1", title: 'parent', comments: [new @Comment(id: '2', post: new @Post(id: "1"))])
       parentComment = parentPost.comments[0]
