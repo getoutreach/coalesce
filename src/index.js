@@ -29,8 +29,6 @@ import ModelSerializer  from './serializers/model'
 import NumberSerializer  from './serializers/number'
 import RevisionSerializer  from './serializers/revision'
 import StringSerializer  from './serializers/string'
-import CollectionManager  from './session/collection_manager'
-import InverseManager  from './session/inverse_manager'
 import ModelCache  from './session/model_cache'
 import QueryCache  from './session/query_cache'
 import Session  from './session/session'
@@ -73,8 +71,6 @@ Coalesce.ModelSerializer = ModelSerializer;
 Coalesce.RevisionSerializer = RevisionSerializer;
 Coalesce.StringSerializer = StringSerializer;
 
-Coalesce.CollectionManager = CollectionManager;
-Coalesce.InverseManager = InverseManager;
 Coalesce.Session = Session;
 Coalesce.QueryCache = QueryCache;
 Coalesce.ModelCache = ModelCache;

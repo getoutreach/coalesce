@@ -5,9 +5,7 @@ import Model  from '../model/model';
 import array_from  from '../utils/array_from';
 import copy  from '../utils/copy';
 import evented  from '../utils/evented';
-import CollectionManager  from './collection_manager';
 import Flush  from './flush';
-import InverseManager  from './inverse_manager';
 import Query  from './query';
 import safeCreate from '../utils/safe_create';
 
@@ -20,8 +18,6 @@ export default class Session {
     this.idManager = idManager;
     this.parent = parent;
     this.models = new ModelSet();
-    this.collectionManager = new CollectionManager();
-    this.inverseManager = new InverseManager(this);
     this.shadows = new ModelSet();
     this.originals = new ModelSet();
     this.newModels = new ModelSet();
