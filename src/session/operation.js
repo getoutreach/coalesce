@@ -205,12 +205,10 @@ export default class Operation {
   
   // Fail this operation. This is called externally when this operation's
   // dependencies fail
+  //
+  // This code is essentialy a no-op left over some old code
   fail() {
-    var errors = this.adapter.serializerFactory.serializerFor('errors');
-    // TODO: for now just set a status code, need to think through differentiating
-    // types of errors, especially ones that are not field-specific
-    errors.status = 0;
-    this.model.errors = errors;
+    this.model.errors = {status: 0};
     return this.model;
   }
   
