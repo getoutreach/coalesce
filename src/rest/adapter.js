@@ -246,7 +246,7 @@ export default class RestAdapter extends Adapter {
   serializerForContext(context) {
     return this.defaultSerializer;
   }
-  
+
   /**
     @private
 
@@ -280,12 +280,13 @@ export default class RestAdapter extends Adapter {
         } else {
           data = {};
         }
-        
+
         serializerOptions = defaults(serializerOptions, {context: context, xhr: xhr});
-        
+
         // TODO: handle other errors codes such as 409
         // determine serializer behavior off of xhr response code
-        if(xhr.status === 422) {
+        let {error, ...rest} = data;
+        if(xhr.status === 422 && !_.isEmpty(rest)) {
           // in the event of a 422 response, handle a full payload, possibly with
           // models that have `error` properties, therefore we just use the same
           // serializer that we use in the success case
@@ -417,7 +418,7 @@ export default class RestAdapter extends Adapter {
     return relationship.kind === 'belongsTo' && owner !== false ||
       relationship.kind === 'hasMany' && owner === true
   }
-  
+
   isDirtyFromRelationships(model, cached, relDiff) {
     for(var i = 0; i < relDiff.length; i++) {
       var diff = relDiff[i];
@@ -671,7 +672,7 @@ export default class RestAdapter extends Adapter {
 
     return hash;
   }
-  
+
   serializerForContext(context) {
     return 'payload';
   }
