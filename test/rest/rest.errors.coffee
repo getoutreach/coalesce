@@ -28,7 +28,7 @@ describe "rest with errors", ->
           expect(post.errors.title).to.eq('is too short')
           expect(post.errors.createdAt).to.eq('cannot be in the past')
           expect(@server.h).to.eql(['PUT:/posts/1'])
-          
+
     it 'overwrites existing errors when error-only payload returned', ->
       @server.r 'PUT:/posts/1', (xhr) ->
         respond xhr, errors: {title: 'is too short'}
@@ -100,7 +100,7 @@ describe "rest with errors", ->
 
 
   context 'on create', ->
-    
+
     it 'handles 422', ->
       @server.r 'POST:/posts', (xhr) ->
         respond xhr, errors: {title: 'is lamerz'}
@@ -108,7 +108,16 @@ describe "rest with errors", ->
       post = @session.create 'post', title: 'errorz'
       @session.flush().then null, =>
         expect(post.errors.title).to.eq('is lamerz')
-        
+
+    it 'handle arbitrary 422 error', ->
+      @server.r 'POST:/posts', (xhr) ->
+        respond xhr, {error: "something is wrong"}
+
+      post = @session.create 'post', title: 'errorz'
+      @session.flush().then null, =>
+        expect(@session.newModels.has(post)).to.be.true
+        expect(post.isNew).to.be.true
+
     it 'handle arbitrary errors', ->
       @server.r 'POST:/posts', (xhr) ->
         respond xhr, {error: "something is wrong"}, 500
@@ -117,9 +126,9 @@ describe "rest with errors", ->
       @session.flush().then null, =>
         expect(@session.newModels.has(post)).to.be.true
         expect(post.isNew).to.be.true
-        
+
     it 'handle errors with multiple staggered creates', ->
-      
+
       calls = 0
       @server.r 'POST:/posts', (xhr) ->
         delayAmount = if calls % 2 == 1
@@ -181,14 +190,14 @@ describe "rest with errors", ->
           expect(post.hasErrors).to.be.false
 
   context 'when querying', ->
-    
+
     it 'does not merge into @session', ->
       @server.r 'GET:/posts', (xhr) ->
         respond xhr, {}, 0, responseText: ""
-        
+
       @session.query('post').then null, (err) ->
         expect(err.status).to.eq(0)
-      
+
 
 
     context 'in child session', ->
@@ -247,28 +256,28 @@ describe "rest with errors", ->
           expect(post.hasErrors).to.be.true
           expect(post.errors.status).to.eq(errorCode)
           expect(@server.h).to.eql(['GET:/posts/1'])
-          
-  
+
+
   context 'on delete', ->
-    
+
     it 'retains deleted state', ->
       @server.r 'DELETE:/posts/1', (xhr) ->
         respond xhr, {}, 0
-        
+
       post = @session.merge new @Post(id: 1, title: 'errorz')
       @session.deleteModel(post)
       expect(post.isDeleted).to.be.true
       @session.flush().then null, =>
         expect(post.isDirty).to.be.true
         expect(post.isDeleted).to.be.true
-    
+
     it 'retains deleted state on multiple models and succeeds subsequently', ->
       @server.r 'DELETE:/posts/1', (xhr) ->
         delay 1000, ->
           respond xhr, {}, 0
       @server.r 'DELETE:/posts/2', (xhr) ->
         respond xhr, {}, 0
-        
+
       post1 = @session.merge new @Post(id: 1, title: 'bad post')
       post2 = @session.merge new @Post(id: 2, title: 'another bad post')
       @session.deleteModel(post1)
@@ -280,16 +289,12 @@ describe "rest with errors", ->
         expect(post1.isDeleted).to.be.true
         expect(post2.isDirty).to.be.true
         expect(post2.isDeleted).to.be.true
-        
+
         @server.r 'DELETE:/posts/1', -> {}
         @server.r 'DELETE:/posts/2', -> {}
-        
+
         @session.flush().then =>
           expect(post1.isDirty).to.be.false
           expect(post1.isDeleted).to.be.true
           expect(post2.isDirty).to.be.false
           expect(post2.isDeleted).to.be.true
-        
-    
-      
-    
