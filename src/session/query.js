@@ -8,6 +8,15 @@ export default class Query extends ObservableArray {
     this._type = type;
     this._params = params;
   }
+
+  copy(deep) {
+    const arr = super.copy(deep);
+    const res = new this.constructor(this.session, this.type, this.params);
+
+    res.setObjects(arr.slice());
+
+    return res;
+  }
   
   get params() {
     return this._params;
