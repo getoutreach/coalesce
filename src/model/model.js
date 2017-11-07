@@ -58,16 +58,16 @@ export default class Model {
   get isModel() {
     return true;
   }
-  
+
   get session() {
     return this._session;
   }
-  
+
   set session(value) {
     console.assert(!this._session || this._session === value, "Cannot re-assign a model's session");
     this._session = value;
   }
-  
+
   constructor(fields) {
     this._meta = {
       id: null,
@@ -87,14 +87,14 @@ export default class Model {
       this[name] = fields[name];
     }
   }
-  
+
   /**
     Increase the client rev number
   */
   bump() {
     return ++this.clientRev;
   }
-  
+
   /**
     Two models are "equal" when they correspond to the same
     key. This does not mean they necessarily have the same data.
@@ -112,7 +112,7 @@ export default class Model {
     var otherId = model.id;
     return this instanceof model.constructor && id === otherId
   }
-  
+
   get typeKey() {
     return this.constructor.typeKey;
   }
@@ -121,7 +121,7 @@ export default class Model {
     var sessionString = this.session ? this.session.toString() : "(detached)";
     return this.constructor.toString() + "<" + (this.id || '(no id)') + ", " + this.clientId + ", " + sessionString + ">";
   }
-  
+
   static toString() {
     if(this.__toString = this.__toString || this.name || (this.typeKey && classify(this.typeKey))) {
       return this.__toString;
@@ -151,7 +151,7 @@ export default class Model {
   get isNew() {
     return !this.id;
   }
-  
+
   get isEmbedded() {
     return !!this._parent;
   }
@@ -191,25 +191,25 @@ export default class Model {
     this.copyAttributes(dest);
     this.copyRelationships(dest);
   }
-  
+
   copyMeta(dest) {
     // TODO _parent should just use clientId
     dest._parent = this._parent;
     dest._meta = copy(this._meta);
   }
-  
+
   copyAttributes(dest) {
     this.loadedAttributes.forEach(function(options, name) {
       dest._attributes[name] = copy(this._attributes[name], true);
     }, this);
   }
-  
+
   copyRelationships(dest) {
     this.eachLoadedRelationship(function(name, relationship) {
       dest[name] = this[name];
     }, this);
   }
-  
+
   /**
     Copy the model to the target session.
   */
@@ -248,7 +248,7 @@ export default class Model {
     }, this);
     return res;
   }
-  
+
   /**
     Returns true if *all* fields (including relationships) are loaded on the model.
   */
@@ -262,9 +262,9 @@ export default class Model {
 
   /**
     Defines the attributes and relationships on the model.
-    
+
     For example:
-    
+
     ```
     class Post extends Model {}
     Post.defineSchema({
@@ -289,7 +289,7 @@ export default class Model {
       }
     });
     ```
-    
+
     @method defineSchema
     @param {Object} schema
   */
@@ -319,43 +319,43 @@ export default class Model {
       this.defineField(field);
     }
   }
-  
+
   static defineField(field) {
     field.defineProperty(this.prototype);
     field.parentType = this;
     this.ownFields.set(field.name, field);
     return field;
   }
-  
+
   static get ownFields() {
     if(!this.hasOwnProperty('_ownFields')) {
       this._ownFields = new Map();
     }
     return this._ownFields;
   }
-  
+
   static get fields() {
     if(this.hasOwnProperty('_fields')) {
       return this._fields;
     }
     var res = new Map(),
         parentClass = this.parentType;
-    
+
     var maps = [this.ownFields];
-    
+
     if(parentClass.prototype instanceof Model) {
       var parentFields = parentClass.fields;
       if(parentFields) {
         maps.push(parentClass.fields);
       }
     }
-    
+
     for(var i = 0; i < maps.length; i++) {
       maps[i].forEach(function(field, name) {
         res.set(name, field);
       });
     }
-    
+
     return this._fields = res;
   }
 
@@ -388,7 +388,7 @@ export default class Model {
   get attributes() {
     return this.constructor.attributes;
   }
-  
+
   get fields() {
     return this.constructor.fields;
   }
@@ -416,13 +416,13 @@ export default class Model {
     }, this);
     return res;
   }
-  
+
   metaWillChange(name) {
-    
+
   }
-  
+
   metaDidChange(name) {
-    
+
   }
 
   attributeWillChange(name) {
@@ -465,7 +465,13 @@ export default class Model {
   hasManyDidChange(name) {
     // XXX: reregister
   }
-  
+
+  // invoked by the session when this model was explicitly invalidated
+  // via `session.invalidate`
+  wasInvalidated() {
+
+  }
+
   //
   // DEPRECATED back-compat methods below, instead should use es6 iterators
   //
@@ -480,19 +486,19 @@ export default class Model {
       callback.call(binding, name, options);
     });
   }
-  
+
   eachRelationship(callback, binding) {
     this.relationships.forEach(function(options, name) {
       callback.call(binding, name, options);
     });
   }
-  
+
   static eachRelationship(callback, binding) {
     this.relationships.forEach(function(options, name) {
       callback.call(binding, name, options);
     });
   }
-  
+
   static get parentType() {
     return Object.getPrototypeOf(this);
   }
@@ -502,7 +508,7 @@ export default class Model {
       callback.call(binding, name, options);
     });
   }
-  
+
   /**
     Traverses the object graph rooted at this model, invoking the callback.
   */
@@ -525,7 +531,7 @@ export default class Model {
       }
     }, this);
   }
-  
+
   /**
     Given a callback, iterates over each child (1-level deep relation).
 
@@ -547,7 +553,7 @@ export default class Model {
       }
     }, this);
   }
-  
+
   /**
     @private
 
@@ -575,18 +581,18 @@ export default class Model {
       this._suspendedRelationships = false;
     }
   }
-  
+
   static inverseFor(name) {
     var relationship = this.relationships.get(name);
     if (!relationship) { return null; }
-    
+
     var inverseType = relationship.type;
 
     if (typeof relationship.inverse !== 'undefined') {
       var inverseName = relationship.inverse;
       return inverseName && inverseType.relationships.get(inverseName);
     }
-    
+
     var possibleRelationships = findPossibleInverses(this, inverseType);
 
     if (possibleRelationships.length === 0) { return null; }
@@ -595,9 +601,9 @@ export default class Model {
 
     function findPossibleInverses(type, inverseType, possibleRelationships) {
       possibleRelationships = possibleRelationships || [];
-      
+
       var relationships = inverseType.relationships;
-      
+
       var typeKey = type.typeKey;
       // Match inverse based on typeKey
       var propertyName = camelize(typeKey);
@@ -605,7 +611,7 @@ export default class Model {
       if(inverse) {
         possibleRelationships.push(inverse);
       }
-      
+
       var parentType = type.parentType;
       if (parentType && parentType.typeKey) {
         // XXX: container extends models and this logic creates duplicates
@@ -617,9 +623,9 @@ export default class Model {
 
     return possibleRelationships[0];
   }
-  
+
   static reopen(props) {
-    for(var key in props) { 
+    for(var key in props) {
       if(!props.hasOwnProperty(key)) return;
       this.prototype[key] = props[key];
     }
@@ -669,28 +675,28 @@ Model.reopen({
 
 /**
   @private
-  
+
   "reification" happens when the type is looked up on the context. This process
   translates the String typeKeys into their corresponding classes.
 */
 Model._isReified = false;
 Model.reify = function(context) {
   if(this._isReified) return;
-  
+
   // no need to reify the root class
   if(this === Model) {
     return;
   }
-  
+
   console.assert(this.typeKey, "Model must have static 'typeKey' property set.");
-  
+
   if(this.parentType && typeof this.parentType.reify === 'function') {
     this.parentType.reify(context);
   }
-  
+
   // eagerly set to break loops
   this._isReified = true;
-  
+
   this.relationships.forEach(function(relationship) {
     if(!relationship.type) {
       relationship.type = context.typeFor(relationship.typeKey);

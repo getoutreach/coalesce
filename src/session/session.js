@@ -526,6 +526,7 @@ export default class Session {
   invalidate(model) {
     var cache = this._modelCacheFor(model);
     cache.remove(model);
+    model.wasInvalidated();
   }
 
   /**
@@ -537,6 +538,7 @@ export default class Session {
   invalidateQuery(query) {
     var queryCache = this._queryCacheFor(query.type);
     queryCache.remove(query);
+    query.wasInvalidated();
   }
 
   /**
@@ -548,7 +550,9 @@ export default class Session {
   invalidateQueries(type) {
     var type = this._typeFor(type),
         queryCache = this._queryCacheFor(type);
-    queryCache.removeAll(type);
+    queryCache.removeAll(type).forEach(function(query) {
+      query.wasInvalidated();
+    });
   }
 
   /**

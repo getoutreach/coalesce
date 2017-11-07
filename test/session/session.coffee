@@ -16,31 +16,31 @@ describe "Session", ->
     c.configure
       adapter: @Adapter
     c
-    
+
   lazy 'Post', ->
     @context.typeFor 'post'
-    
+
   lazy 'Comment', ->
     @context.typeFor 'comment'
-    
+
   subject ->
     @context.newSession()
 
   describe '.build', ->
-  
+
     it 'instantiates a model', ->
       post = @subject.build('post')
       expect(post).to.not.be.null
       expect(@subject.getModel(post)).to.not.eq(post)
-      
+
     it 'instantiates a model with attributes', ->
       post = @subject.build('post', title: 'test')
       expect(post.title).to.eq('test')
-      
+
     it 'sets clientId', ->
       post = @subject.build('post', title: 'test')
       expect(post.clientId).to.not.be.null
-      
+
 
   describe '.create', ->
 
@@ -89,6 +89,8 @@ describe "Session", ->
     it 'causes existing model to be reloaded', ->
       post = @subject.merge new @Post(id: '1', title: 'refresh me plz')
       hit = false
+      wasInvalidatedHitCount = 0
+      post.wasInvalidated = -> wasInvalidatedHitCount++
       @Adapter.prototype.load = (model) ->
         expect(model).to.eq(post)
         hit = true
@@ -98,68 +100,76 @@ describe "Session", ->
       @subject.invalidate(post)
       post.load()
       expect(hit).to.be.true
-      
+      expect(wasInvalidatedHitCount).to.eq(1)
+
   describe '.query', ->
-    
+
     it 'returns a Query', ->
       @Adapter.prototype.query = =>
         Coalesce.Promise.resolve([new @Post id: 1])
-        
+
       res = @subject.query(@Post).then (posts) ->
         expect(posts).to.be.an.instanceOf(Query)
-    
+
     it 'utilizes cache on subsequence calls', ->
       hit = 0
       @Adapter.prototype.query = =>
         hit += 1
         Coalesce.Promise.resolve([new @Post id: 1])
-        
+
       res = @subject.query(@Post).then (posts) =>
         @subject.query(@Post).then ->
           expect(hit).to.eq(1)
-    
+
   describe '.fetchQuery', ->
-    
+
     it 'synchronously returns a query', ->
       res = @subject.fetchQuery(@Post)
       expect(res).to.be.an.instanceOf(Query)
-    
+
   describe '.refreshQuery', ->
-    
+
     it 'skips cache', ->
       it 'utilizes cache on subsequence calls', ->
         hit = 0
         @Adapter.prototype.query = =>
           hit += 1
           Coalesce.Promise.resolve([new @Post id: 1])
-          
+
         res = @subject.query(@Post).then (posts) ->
           @subject.refreshQuery(posts).then ->
             expect(hit).to.eq(2)
-    
+
   describe '.invalidateQuery', ->
-    
+
     it 'clears cache', ->
       hit = 0
       @Adapter.prototype.query = =>
         hit += 1
         Coalesce.Promise.resolve([new @Post id: 1])
-        
+
       res = @subject.query(@Post).then (posts) =>
+        wasInvalidatedHitCount = 0
+        posts.wasInvalidated = -> wasInvalidatedHitCount++
         @subject.invalidateQuery(posts)
+        expect(wasInvalidatedHitCount).to.eq(1)
+
         @subject.query(@Post).then ->
           expect(hit).to.eq(2)
-    
+
   describe '.invalidateQueries', ->
-    
+
     it 'clears cache for all queries', ->
       hit = 0
       @Adapter.prototype.query = =>
         hit += 1
         Coalesce.Promise.resolve([new @Post id: 1])
-        
+
       res = @subject.query(@Post).then (posts) =>
+        wasInvalidatedHitCount = 0
+        posts.wasInvalidated = -> wasInvalidatedHitCount++
         @subject.invalidateQueries(@Post)
+        expect(wasInvalidatedHitCount).to.eq(1)
         @subject.query(@Post).then ->
           expect(hit).to.eq(2)
 
@@ -168,8 +178,8 @@ describe "Session", ->
     it 'reuses detached model', ->
       post = new @Post(id: "1", title: 'test')
       expect(@subject.merge(post)).to.eq(post)
-      
-    
+
+
     it 'emites willMerge and didMerge', ->
       willMergeHit = false
       didMergeHit = false
@@ -177,7 +187,7 @@ describe "Session", ->
         willMergeHit = true
       @subject.on 'didMerge', ->
         didMergeHit = true
-        
+
       post = new @Post(id: "1", title: 'test')
       @subject.merge(post)
       expect(willMergeHit).to.be.true
@@ -195,8 +205,8 @@ describe "Session", ->
       post = @subject.merge new @Post(id: "2", comments: [new @Comment(id: "1")])
       comment = @subject.merge new @Comment(id: "1", body: "obscurity", post: new @Post(id: "2", comments: [new @Comment(id: "1")]))
       expect(comment.post).to.eq(post)
-      
-      
+
+
     it 'handles merging detached model with lazy belongsTo reference', ->
       post = @subject.merge new @Post id: "2", comments: []
       comment = @subject.merge new @Comment id: "1", body: "obscurity", post: new @Post(id: "2")
@@ -262,7 +272,7 @@ describe "Session", ->
         post.title = 'update 3'
         @subject.flush().then ->
           expect(post.title).to.eq('update 3')
-          
+
     it 'emits willFlush event', ->
       it 'can update while flush is pending', ->
         willFlushHit = false
@@ -318,10 +328,10 @@ describe "Session", ->
         @subject.load(@Post, 1).then (post) =>
           expect(post).to.not.eq(@parent.getModel(post))
           expect(post.title).to.eq('flash gordon')
-        
-        
+
+
     describe '.add', ->
-    
+
       it 'includes lazy relationships', ->
         parentComment = @parent.merge new @Comment(id: "1", post: new @Post(id: "2"))
         comment = @subject.add(parentComment)
