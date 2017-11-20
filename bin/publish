@@ -20,7 +20,7 @@ git rm -rf *
 
 cp ../dist/* .
 
-VERSION=`cat bower.json | jsawk 'return this.version'`
+VERSION=`cat package.json | jsawk 'return this.version'`
 
 echo "Releasing version ${VERSION}"
 
