@@ -1,6 +1,6 @@
 # Getting Started
 
-(TODO script tags/bower etc.)
+(TODO script tags etc.)
 
 ## Setting up the Context
 
