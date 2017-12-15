@@ -4,10 +4,9 @@
   "description": "A modern client-side persistence framework",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "rm -rf dist; ./node_modules/.bin/broccoli build dist",
-    "test": "./node_modules/.bin/testem ci",
-    "postinstall": "./node_modules/.bin/bower install",
-    "start": "./node_modules/.bin/broccoli serve"
+    "build": "rm -rf dist; broccoli build dist",
+    "test": "testem ci",
+    "start": "broccoli serve"
   },
   "repository": "https://github.com/coalescejs/coalesce.git",
   "keywords": [
@@ -22,7 +21,6 @@
   "devDependencies": {
     "babel-core": "~5.8.24",
     "babel-runtime": "~5.8.9",
-    "bower": "~1.5.2",
     "broccoli": "~0.16.4",
     "broccoli-babel-transpiler": "5.4.5",
     "broccoli-cli": "1.0.0",
@@ -37,9 +35,14 @@
     "broccoli-source-map": "0.2.3",
     "broccoli-sourcemap-concat": "~1.0.2",
     "broccoli-static-compiler": "~0.2.1",
+    "chai": "~1.9.1",
     "defeatureify": "~0.2.2",
     "es6-module-loader": "~0.17.7",
+    "jquery": "~2.1.1",
     "lodash": "^3.10.1",
+    "mocha": "~2.1.0",
+    "mocha-lazy-bdd": "~0.0.4",
+    "sinon": "~1.10.2",
     "systemjs": "0.18.17",
     "testem": "~0.9.0"
   }
