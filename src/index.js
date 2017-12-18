@@ -24,7 +24,7 @@ import BooleanSerializer from './serializers/boolean';
 import DateSerializer from './serializers/date';
 import HasManySerializer from './serializers/has_many';
 import IdSerializer from './serializers/id';
-import JsonSerializer from '../serializers/json';
+import JsonSerializer from './serializers/json';
 import ModelSerializer from './serializers/model';
 import NumberSerializer from './serializers/number';
 import RevisionSerializer from './serializers/revision';
