@@ -19,6 +19,7 @@ import Payload from './rest/payload';
 import RestErrorsSerializer from './rest/serializers/errors';
 import PayloadSerializer from './rest/serializers/payload';
 import Serializer from './serializers/base';
+import ArraySerializer from './serializers/array';
 import BelongsToSerializer from './serializers/belongs_to';
 import BooleanSerializer from './serializers/boolean';
 import DateSerializer from './serializers/date';
@@ -63,6 +64,7 @@ Coalesce.ActiveModelAdapter = ActiveModelAdapter;
 Coalesce.ActiveModelSerializer = ActiveModelSerializer;
 
 Coalesce.Serializer = Serializer;
+Coalesce.ArraySerializer = ArraySerializer;
 Coalesce.BelongsToSerializer = BelongsToSerializer;
 Coalesce.BooleanSerializer = BooleanSerializer;
 Coalesce.DateSerializer = DateSerializer;

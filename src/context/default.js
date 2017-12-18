@@ -1,6 +1,7 @@
 import IdManager from '../id_manager';
 import PerField from '../merge/per_field';
 import Errors from '../model/errors';
+import ArraySerializer from '../serializers/array';
 import BelongsToSerializer from '../serializers/belongs_to';
 import BooleanSerializer from '../serializers/boolean';
 import DateSerializer from '../serializers/date';
@@ -60,6 +61,7 @@ export default class Context extends Base {
   _setupSerializers(container) {
     container.register('serializer:default', ModelSerializer);
 
+    container.register('serializer:array', ArraySerializer);
     container.register('serializer:belongs-to', BelongsToSerializer);
     container.register('serializer:boolean', BooleanSerializer);
     container.register('serializer:date', DateSerializer);
