@@ -7,10 +7,18 @@ import Serializer from './base';
 */
 export default class ArraySerializer extends Serializer {
   deserialize(serialized) {
-    return isEmpty(serialized) ? null : serialized;
+    if (Array.isArray(serialized)) {
+      return serialized;
+    }
+
+    return isEmpty(serialized) ? null : Array.from(serialized);
   }
 
   serialize(deserialized) {
-    return isEmpty(deserialized) ? null : deserialize;
+    if (Array.isArray(deserialized)) {
+      return deserialized;
+    }
+
+    return isEmpty(deserialized) ? null : Array.from(deserialized);
   }
 }
