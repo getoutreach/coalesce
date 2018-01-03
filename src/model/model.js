@@ -86,6 +86,12 @@ export default class Model {
       if(!fields.hasOwnProperty(name)) continue;
       this[name] = fields[name];
     }
+
+    this._modelHasBeenConstructed = true;
+  }
+
+  get isDirtyFromUser() {
+    return !!this._isDirtyFromUser;
   }
 
   /**
@@ -433,7 +439,9 @@ export default class Model {
   }
 
   attributeDidChange(name) {
-
+    if (this._modelHasBeenConstructed) {
+      this._isDirtyFromUser = true;
+    }
   }
 
   belongsToWillChange(name) {
