@@ -87,16 +87,11 @@ export default class Model {
       this[name] = fields[name];
     }
 
-    this._initialAttributes = null;
-    this._updateInitialAttributes();
-  }
-
-  _updateInitialAttributes() {
-    this._initialAttributes = _.clone(this._attributes);
+    this._modelHasBeenConstructed = true;
   }
 
   get isDirtyFromUser() {
-    return this._initialAttributes ? !_.isEqual(this._initialAttributes, this._attributes) : false;
+    return !!this._isDirtyFromUser;
   }
 
   /**
@@ -444,7 +439,9 @@ export default class Model {
   }
 
   attributeDidChange(name) {
-
+    if (this._modelHasBeenConstructed) {
+      this._isDirtyFromUser = true;
+    }
   }
 
   belongsToWillChange(name) {
