@@ -86,6 +86,17 @@ export default class Model {
       if(!fields.hasOwnProperty(name)) continue;
       this[name] = fields[name];
     }
+
+    this._initialAttributes = null;
+    this._updateInitialAttributes();
+  }
+
+  _updateInitialAttributes() {
+    this._initialAttributes = _.clone(this._attributes);
+  }
+
+  get isDirtyFromUser() {
+    return this._initialAttributes ? !_.isEqual(this._initialAttributes, this._attributes) : false;
   }
 
   /**
