@@ -15,14 +15,14 @@ describe 'Model', ->
         createdAt: {type: 'date'}
     User.typeKey = 'user'
     @User = User
-    
+
     @context = new Context
       types:
         user: User
     session = @context.newSession()
 
   describe '.id', ->
-    
+
     it 'triggers metaWillChange and metaDidChange', ->
       user = new @User()
       willHit = false
@@ -34,9 +34,9 @@ describe 'Model', ->
       user.id = 1
       expect(willHit).to.be.true
       expect(didHit).to.be.true
-      
+
   describe '.errors', ->
-    
+
     it 'triggers metaWillChange and metaDidChange', ->
       user = new @User()
       willHit = false
@@ -49,7 +49,7 @@ describe 'Model', ->
       expect(willHit).to.be.true
       expect(didHit).to.be.true
 
-  describe '.isDirty', ->      
+  describe '.isDirty', ->
 
     it 'returns false when detached', ->
       expect(new @User().isDirty).to.be.false
@@ -71,6 +71,26 @@ describe 'Model', ->
       user.session = session
       expect(user.isDirty).to.be.false
 
+  describe '.isDirtyFromUser', ->
+
+    it 'returns true when dirty', ->
+      user = null
+      Object.defineProperty session, 'dirtyModels',
+        get: -> new ModelSet([user])
+
+      user = new @User()
+      user.name = 'Testy'
+      user.session = session
+      expect(user.isDirtyFromUser).to.be.true
+
+    it 'returns false when untouched', ->
+      user = null
+      Object.defineProperty session, 'dirtyModels',
+        get: -> new ModelSet([user])
+
+      user = new @User()
+      user.session = session
+      expect(user.isDirtyFromUser).to.be.false
 
   describe '.diff', ->
 
@@ -92,15 +112,15 @@ describe 'Model', ->
 
 
   describe '.copy', ->
-  
+
     it 'copies dates', ->
-      
+
       date = new Date(2014, 7, 22)
       user = new @User
         createdAt: date
       copy = user.copy()
       expect(user.createdAt.getTime()).to.eq(copy.createdAt.getTime())
-        
+
 
     it 'deep copies complex object attributes', ->
 
@@ -124,15 +144,15 @@ describe 'Model', ->
       expect(user).to.not.eq(copy)
       expect(user.raw).to.not.eq(copy.raw)
       expect(user.raw).to.eql(copy.raw)
-      
+
   describe '.attributes', ->
-    
+
     it 'returns map of attributes', ->
       attrs = @User.attributes
       expect(attrs.size).to.eq(3)
-      
+
   describe 'subclassing', ->
-    
+
     beforeEach ->
       User = @User
       `class Admin extends User {}`
@@ -145,19 +165,16 @@ describe 'Model', ->
         attributes:
           anonymous: {type: 'boolean'}
       @Guest = Guest
-    
+
     it 'can add fields', ->
       expect(@Admin.fields.get('role')).to.exist
-      
+
     it 'inherits fields from parent', ->
       expect(@Admin.fields.get('name')).to.exist
-    
+
     it 'does not modify the parent fields', ->
       expect(@User.fields.get('role')).to.not.exist
-          
+
     it 'can share common parent class', ->
       @Admin.attributes
       expect(@Guest.attributes.get('anonymous')).to.not.be.undefined
-      
-          
-      
