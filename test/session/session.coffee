@@ -98,9 +98,42 @@ describe "Session", ->
       post.load()
       expect(hit).to.be.false
       @subject.invalidate(post)
+      expect(post.rev).to.eq(0)
       post.load()
       expect(hit).to.be.true
-      expect(wasInvalidatedHitCount).to.eq(1)
+
+  describe '.invalidateAll', ->
+
+    it 'causes all existing models to be reloaded', ->
+      post1 = @subject.merge new @Post(id: '1', title: 'refresh me plz')
+      post2 = @subject.merge new @Post(id: '2', title: 'refresh me too')
+      hit = false
+      @Adapter.prototype.load = (model) ->
+        hit = true
+        Coalesce.Promise.resolve(model)
+      post1.load()
+      post2.load()
+      expect(hit).to.be.false
+      @subject.invalidateAll()
+      post1.load()
+      post2.load()
+      expect(hit).to.be.true
+
+    it 'causes only Post to be reloaded', ->
+      comment = @subject.merge new @Comment(id: '1', body: 'hey there')
+      post = @subject.merge new @Post(id: '1', title: 'refresh me too')
+      hit = false
+      @Adapter.prototype.load = (model) ->
+        expect(model).to.eq(post)
+        hit = true
+        Coalesce.Promise.resolve(model)
+      post.load()
+      comment.load()
+      expect(hit).to.be.false
+      @subject.invalidateAll('post')
+      post.load()
+      comment.load()
+      expect(hit).to.be.true
 
   describe '.query', ->
 
