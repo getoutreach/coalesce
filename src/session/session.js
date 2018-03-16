@@ -526,7 +526,24 @@ export default class Session {
   invalidate(model) {
     var cache = this._modelCacheFor(model);
     cache.remove(model);
+    model.rev = 0;
     model.wasInvalidated();
+  }
+
+  /**
+    Invalidate the cache for all models in the session. Optionally
+    pass in a `typeKey` to invalidate all models of a given
+    type.
+
+    @method invalidateAll
+    @param {String} typeKey
+  */
+  invalidateAll(typeKey = null) {
+    this.models.forEach(function(model) {
+      if(!typeKey || model.typeKey === typeKey) {
+        this.invalidate(model);
+      }
+    }, this);
   }
 
   /**
