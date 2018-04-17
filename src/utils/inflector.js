@@ -45,13 +45,13 @@ export function pluralize(word, count, includeNumber) {
   }
   else
   {
-    if (_(uncountables).include(word)) {
+    if (_(uncountables).includes(word)) {
       return word;
     }
 
     result = word;
 
-    _(plurals).detect(function(rule) {
+    _(plurals).find(function(rule) {
       var res = gsub(word, rule[0], rule[1]);
 
       return res ? (result = res) : false;
@@ -75,13 +75,13 @@ export function singular(rule, replacement) {
  * passed to it.
  */
 export function singularize(word) {
-  if (_(uncountables).include(word)) {
+  if (_(uncountables).includes(word)) {
     return word;
   }
 
   var result = word;
 
-  _(singulars).detect(function(rule) {
+  _(singulars).find(function(rule) {
     var res = gsub(word, rule[0], rule[1]);
 
     return res ? (result = res) : false;
@@ -285,3 +285,4 @@ export function underscore(str) {
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.substr(1);
 }
+

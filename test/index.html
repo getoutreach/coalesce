@@ -16,11 +16,11 @@
 
     <!-- Coalesce dependencies -->
     <script src="vendor/jquery/dist/jquery.js"></script>
-    <script src="vendor/lodash/dist/lodash.js"></script>
+    <script src="vendor/lodash/index.js"></script>
     <script src="vendor/backburner.js"></script>
 
     <!-- Testing dependencies -->
-    <script src="vendor/sinonjs/sinon.js"></script>
+    <script src="vendor/sinon/pkg/sinon.js"></script>
     <script src="vendor/mocha/mocha.js"></script>
     <script src="vendor/mocha-lazy-bdd/dist/mocha-lazy-bdd.js"></script>
     <script src="vendor/chai/chai.js"></script>
@@ -35,7 +35,7 @@
         var expect = chai.expect;
 
         System.import('coalesce').then(function(module) {
-          
+
           System.import('coalesce-test/support/server').then(function() {
 
             var promises = [];
