@@ -1,11 +1,11 @@
 import ModelArray  from '../collections/model_array';
 
 export default class HasManyArray extends ModelArray {
-  
+
   get session() {
     return this.owner && this.owner.session;
   }
-  
+
   replace(idx, amt, objects) {
     if(this.session) {
       objects = objects.map(function(model) {
@@ -39,19 +39,19 @@ export default class HasManyArray extends ModelArray {
     var model = this.owner,
         name = this.name,
         session = this.session;
-        
+
     for (var i=index; i<index+added; i++) {
       var inverseModel = this.objectAt(i);
       if (session && !model._suspendedRelationships) {
         session.inverseManager.registerRelationship(model, name, inverseModel);
       }
-      
+
       if(this.embedded) {
         inverseModel._parent = model;
       }
     }
   }
-  
+
   reify() {
     replace(this, 0, this.length, this.map((model) => {
       return this.session.add(model);

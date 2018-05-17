@@ -52,8 +52,8 @@ describe "rest with one->many relationship", ->
       expect(comment.post.id).to.eq("1")
       expect(post.comments[0]).to.eq(comment)
       expect(@server.h).to.eql(['POST:/posts', 'POST:/comments'])
-      
-  
+
+
   it 'creates and server can return additional children', ->
     @server.r 'POST:/posts', ->
       comments: [{id: 2, post: 1, body: 'seems good'}]
@@ -72,7 +72,7 @@ describe "rest with one->many relationship", ->
       expect(comment.post).to.eq(post)
       expect(comment.post.id).to.eq("1")
       expect(@server.h).to.eql(['POST:/posts'])
-    
+
 
   it 'creates child', ->
     @server.r 'POST:/comments', -> comments: {client_id: comment.clientId, id: 2, body: 'new child', post: 1}
@@ -219,7 +219,7 @@ describe "rest with one->many relationship", ->
   context 'when embedded', ->
 
     lazy 'context', -> new Context(postWithEmbeddedComments())
-    
+
     it 'loads', ->
       @server.r 'GET:/posts/1', posts: {id: 1, title: 'mvcc ftw', comments: [{id: 2, post: 1, body: 'first'}]}
 
@@ -232,6 +232,21 @@ describe "rest with one->many relationship", ->
         expect(comment.body).to.eq 'first'
         expect(comment.post.isEqual(post)).to.be.true
 
+    context 'and in child session', ->
+
+      lazy 'session', -> @_super.session.newSession()
+
+      it 'loads', ->
+        @server.r 'GET:/posts/1', posts: {id: 1, title: 'mvcc ftw', comments: [{id: 2, post: 1, body: 'first'}]}
+
+        @session.load(@Post, 1).then (post) =>
+          expect(@server.h).to.eql(['GET:/posts/1'])
+          expect(post.id).to.eq("1")
+          expect(post.title).to.eq('mvcc ftw')
+          expect(post.comments.length).to.eq(1)
+          comment = post.comments[0]
+          expect(comment.body).to.eq 'first'
+          expect(comment.post.isEqual(post)).to.be.true
 
     it 'updates child', ->
       @server.r 'GET:/posts/1', posts: {id: 1, title: 'mvcc ftw', comments: [{id: 2, post: 1, body: 'first'}]}

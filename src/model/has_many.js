@@ -7,12 +7,12 @@ import Relationship  from './relationship';
 var defaults = _.defaults;
 
 export default class HasMany extends Relationship {
-  
+
   constructor(name, options) {
     defaults(options, {collectionType: HasManyArray});
     super(name, options);
   }
-  
+
   defineProperty(prototype) {
     var name = this.name,
         CollectionType = this.collectionType,
@@ -53,13 +53,20 @@ export default class HasMany extends Relationship {
           }
         } else {
           this.hasManyWillChange(name);
-          
+
           var content = value;
           value = this._relationships[name] = new CollectionType();
           value.owner = this;
           value.name = name;
           value.embedded = embedded;
           if(content) {
+            if(this.session && this.session.parent) {
+              // NOTE: we must add to the session before we replace the relationship
+              // contents in order to avoid an unwanted recursive race condition
+              // between lazily materializing from the parent session and populating
+              // the inverse relationship.
+              content = content.map(m => this.session.add(m))
+            }
             value.addObjects(content);
           }
           this.hasManyDidChange(name);
@@ -68,5 +75,5 @@ export default class HasMany extends Relationship {
       }
     });
   }
-  
+
 }
