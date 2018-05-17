@@ -5,7 +5,7 @@ pkg
 dist/
 .DS_Store
 Gemfile.lock
-tmp
+tmp/
 bower_components
 
 staging
